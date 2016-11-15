@@ -13,7 +13,7 @@ select <- dplyr::select
 #'
 #' @param infile Path to genepop text file
 #' @param outfile Path to output file
-
+#' @export
 mn2dm <- function(infile, outfile=NULL){
 
       require(stringr)
@@ -68,7 +68,7 @@ mn2dm <- function(infile, outfile=NULL){
 #'
 #' @param infile Path to genepop text file
 #' @param outfile Path to output file
-
+#' @export
 mn2ba <- function(infile, outfile=NULL){
 
       lines <- readLines(infile)
@@ -107,7 +107,7 @@ mn2ba <- function(infile, outfile=NULL){
 #'
 #' @param path Path to genepop text file
 #' @return a data frame of migration parameters
-
+#' @export
 load_mn_results <- function(path){
       require(dplyr)
       require(tidyr)
@@ -144,6 +144,7 @@ load_mn_results <- function(path){
 #' @param infile Path to input gene data file
 #' @param wd Path to working directory for file export
 #'
+#' @export
 bayesass <- function(iter=10000000,
                      exe="E:/flow/BA3Windows64/BA3.exe",
                      infile="infile_bayesass.txt",
