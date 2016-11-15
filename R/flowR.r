@@ -108,7 +108,7 @@ mn2ba <- function(infile, outfile=NULL){
 #' @param path Path to genepop text file
 #' @return a data frame of migration parameters
 
-get_migrateN_results <- function(path){
+load_mn_results <- function(path){
       require(dplyr)
       require(tidyr)
       require(data.table)
