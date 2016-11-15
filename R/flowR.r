@@ -136,6 +136,39 @@ load_mn_results <- function(path){
 
 
 
+#' Load BayesAss outfile.
+#'
+#' This function loads BayesAss results as a data frame. Currently it retrieves
+#' only the pairwise population stats, but it may later be extended to retrieve
+#' individual ancestry estimates.
+#'
+#' @param path Path to genepop text file
+#' @return a data frame of migration parameters
+#' @export
+load_ba_results <- function(path){
+      require(dplyr)
+      require(tidyr)
+
+      # load file and grab pairwise migration data
+      d <- readLines(path)
+      d <- d[(which(d==" Migration Rates:")+2) :
+                   (which(d==" Inbreeding Coefficients:")-2)]
+
+      # get data into clean tabular format
+      strip <- function(x) gsub("\\[|\\]|\\(|\\)", "", x)
+      data.frame(raw=d) %>%
+            separate(raw, paste0("e", 0:length(d)), sep=" m") %>%
+            select(-e0) %>%
+            gather(edge, value) %>%
+            separate(value, c("pair", "value"), sep=": ") %>%
+            separate(pair, c("pop", "source"), sep="\\]\\[") %>%
+            separate(value, c("value", "ci"), sep="\\(") %>%
+            mutate_each(funs(strip)) %>%
+            select(-edge) %>%
+            mutate_each(funs(as.numeric))
+}
+
+
 
 #' Run BayesAss.
 #'
@@ -150,7 +183,11 @@ bayesass <- function(iter=10000000,
                      infile="infile_bayesass.txt",
                      wd=getwd()){
       setwd(wd)
-      system(paste0(exe, " -u -v -g -t -m0.10 -a0.45 -f0.45 -i", iter, " -b1000000 -n1000 -s100 ", infile),
+      system(paste0(exe,
+                    " -u -v -g -t -m0.10 -a0.45 -f0.45 -i",
+                    iter,
+                    " -b1000000 -n1000 -s100 ",
+                    infile),
              wait=FALSE, invisible=FALSE)
       #file.rename("BA3out.txt", paste0("BA3out_i=",iter,"_",Sys.Date(),".txt"))
       #file.rename("BA3trace.txt", paste0("BA3trace_i=",iter,"_",Sys.Date(),".txt"))
