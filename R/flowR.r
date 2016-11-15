@@ -3,7 +3,6 @@
 library(diveRsity)
 library(dplyr)
 library(tidyr)
-library(roxygen2)
 select <- dplyr::select
 
 
