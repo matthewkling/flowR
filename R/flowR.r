@@ -172,25 +172,32 @@ load_ba_results <- function(path){
 
 #' Run BayesAss.
 #'
-#' @param iter Number of interations
+#' @param iter Number of interations (integer)
+#' @param seed Random starting seed (integer)
 #' @param exe Path to BayesAss executable file
 #' @param infile Path to input gene data file
 #' @param wd Path to working directory for file export
+#' @param tag Text identifier to append to outfiles
 #'
 #' @export
 bayesass <- function(iter=10000000,
+                     seed=10,
                      exe="E:/flow/BA3Windows64/BA3.exe",
                      infile="infile_bayesass.txt",
-                     wd=getwd()){
+                     wd=getwd(),
+                     tag=NULL){
       setwd(wd)
       system(paste0(exe,
-                    " -u -v -g -t -m0.10 -a0.45 -f0.45 -i",
-                    iter,
+                    " -u -v -g -t -m0.10 -a0.45 -f0.45",
+                    " -i", iter,
+                    " -s", seed,
                     " -b1000000 -n1000 -s100 ",
                     infile),
              wait=FALSE, invisible=FALSE)
-      #file.rename("BA3out.txt", paste0("BA3out_i=",iter,"_",Sys.Date(),".txt"))
-      #file.rename("BA3trace.txt", paste0("BA3trace_i=",iter,"_",Sys.Date(),".txt"))
-      #file.rename("BA3indiv.txt", paste0("BA3indiv_i=",iter,"_",Sys.Date(),".txt"))
+
+      if(!is.null(tag)){
+            files <- c("BA3out.txt", "BA3trace.txt", "BA3indiv.txt")
+            file.rename(files, gsub(".txt", paste0("_", tag, ".txt"), files))
+      }
 }
 

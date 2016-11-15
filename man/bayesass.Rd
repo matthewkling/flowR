@@ -4,17 +4,21 @@
 \alias{bayesass}
 \title{Run BayesAss.}
 \usage{
-bayesass(iter = 1e+07, exe = "E:/flow/BA3Windows64/BA3.exe",
-  infile = "infile_bayesass.txt", wd = getwd())
+bayesass(iter = 1e+07, seed = 10, exe = "E:/flow/BA3Windows64/BA3.exe",
+  infile = "infile_bayesass.txt", wd = getwd(), tag = NULL)
 }
 \arguments{
-\item{iter}{Number of interations}
+\item{iter}{Number of interations (integer)}
+
+\item{seed}{Random starting seed (integer)}
 
 \item{exe}{Path to BayesAss executable file}
 
 \item{infile}{Path to input gene data file}
 
 \item{wd}{Path to working directory for file export}
+
+\item{tag}{Text identifier to append to outfiles}
 }
 \description{
 Run BayesAss.
