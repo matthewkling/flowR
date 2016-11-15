@@ -1,18 +1,24 @@
 
-install.packages('dplyr','tidyr')
+
 library(diveRsity)
 library(dplyr)
 library(tidyr)
+library(roxygen2)
 select <- dplyr::select
 
 
-########### convert MIGRATE-N infiles to divMigrate format ###########
+#' Convert MIGRATE-N infiles to divMigrate format.
+#'
+#' This function takes a MIGRATE-N infile (genepop format) and converts it into
+#' a divMigrate infile format.
+#'
+#' @param infile Path to genepop text file
+#' @param outfile Path to output file
 
-# (genepop format, http://kimura.univ-montp2.fr/~rousset/Genepop.pdf)
 mn2dm <- function(infile, outfile=NULL){
-      
+
       require(stringr)
-      
+
       lines <- readLines(infile)
       n_loci <- as.integer(strsplit(lines[1], " ")[[1]][2])
       loci_names <- paste0("locus", 1:n_loci)
@@ -22,8 +28,8 @@ mn2dm <- function(infile, outfile=NULL){
       lines <- gsub("\\?", "000", lines) # missing data is encoded as zeroes in popgen
       lines[nchar(lines)<25] <- "pop" # these have to be called pop
       lines[1] <- "title" # title can't start with a number
-      
-      
+
+
       # add leading zeroes to all alleles so that they're 3 digits long
       pad <- function(x) str_pad(x, 3, "left", 0)
       expand <- function(x){
@@ -43,12 +49,12 @@ mn2dm <- function(infile, outfile=NULL){
             select(-raw) %>%
             mutate(ind=paste0(ind, ", ")) %>%
             apply(1, paste, collapse=" ")
-      
+
       lines[ar] <- a
-      
+
       lines <- gsub("\\.", "", lines) # no separator between alleles
-      
-      if(is.null(outfile)) outfile <- paste0(dirname(infile), "/infile_divMigrate.txt")
+
+      if(is.null(outfile)) outfile <- paste0(dirname(infile), "/infile_divmigrate.txt")
       con <- file(outfile)
       writeLines(lines, con)
       close(con)
@@ -56,18 +62,24 @@ mn2dm <- function(infile, outfile=NULL){
 }
 
 
-########### convert MIGRATE-N infiles to BayesAss format ###########
+#' Convert MIGRATE-N infiles to BayesAss format.
+#'
+#' This function takes a MIGRATE-N infile (genepop format) and converts it into
+#' a BayesAss infile format.
+#'
+#' @param infile Path to genepop text file
+#' @param outfile Path to output file
 
 mn2ba <- function(infile, outfile=NULL){
 
       lines <- readLines(infile)
       lines <- gsub("\\?", "0", lines)
-      
+
       # Bring the genotype data into a data frame
       # I assume that the individual lines are longer than the first line
       # That may not be a good assumption
       dframe <- data.frame(matrix(unlist(strsplit(lines[nchar(lines)>nchar(lines[1])], " ")), length(lines[nchar(lines)>nchar(lines[1])]), byrow=T))
-      
+
       # Fill in the population names as the second column of the data frame
       # I assume that the population lines are shorter than the first line
       # That may not be a good assumption either
@@ -82,7 +94,7 @@ mn2ba <- function(infile, outfile=NULL){
       # Save a text file with given name or "infile_bayesass.txt" (default)
       if(is.null(outfile)) outfile <- paste0(dirname(infile), "/infile_bayesass.txt")
       write.table(dframe2, outfile, sep=" ", row.names=FALSE, col.names=FALSE, quote=FALSE)
-      
+
       return(outfile)
 }
 
@@ -90,8 +102,12 @@ mn2ba <- function(infile, outfile=NULL){
 
 
 
-##### function to load results from MIGRATE-n ######
-
+#' Load MIGRATE-N outfile.
+#'
+#' This function loads MIGRATE-N results as a data frame.
+#'
+#' @param path Path to genepop text file
+#' @return a data frame of migration parameters
 
 get_migrateN_results <- function(path){
       require(dplyr)
@@ -104,7 +120,7 @@ get_migrateN_results <- function(path){
       writeLines(d, "temp.txt")
       d <- fread("temp.txt")
       file.remove("temp.txt")
-      
+
       gf <- d %>%
             filter(Locus=="All", grepl("M_", Parameter)) %>%
             dplyr::select(Parameter, median) %>% # using mode or mean rather than median yields very similar results
@@ -115,6 +131,6 @@ get_migrateN_results <- function(path){
             dplyr::select(-from) %>%
             as.matrix()
       gen_flow[is.na(gen_flow)] <- 0
-      
+
       return(gen_flow)
 }
