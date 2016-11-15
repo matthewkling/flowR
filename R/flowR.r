@@ -143,7 +143,8 @@ load_mn_results <- function(path){
 #' individual ancestry estimates.
 #'
 #' @param path Path to genepop text file
-#' @return a data frame of migration parameters
+#' @return a list of two data frames, one with population id numbers and one
+#'   with migration parameters
 #' @export
 load_ba_results <- function(path){
       require(dplyr)

@@ -10,7 +10,8 @@ load_ba_results(path)
 \item{path}{Path to genepop text file}
 }
 \value{
-a data frame of migration parameters
+a list of two data frames, one with population id numbers and one
+  with migration parameters
 }
 \description{
 This function loads BayesAss results as a data frame. Currently it retrieves
