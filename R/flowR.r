@@ -148,24 +148,36 @@ load_mn_results <- function(path){
 load_ba_results <- function(path){
       require(dplyr)
       require(tidyr)
+      require(stringr)
 
-      # load file and grab pairwise migration data
+      # load file
       d <- readLines(path)
+
+      # grab and munge population dictionary
+      p <- d[which(d==" Population Index -> Population Label:")+2]
+      p <- str_trim(p)
+      p <- data.frame(raw=str_split(p, " ")[[1]]) %>%
+            separate(raw, c("id", "label"), sep="->") %>%
+            mutate(id=as.integer(id))
+
+      # grab pairwise migration data
       d <- d[(which(d==" Migration Rates:")+2) :
                    (which(d==" Inbreeding Coefficients:")-2)]
 
       # get data into clean tabular format
       strip <- function(x) gsub("\\[|\\]|\\(|\\)", "", x)
-      data.frame(raw=d) %>%
+      d <- data.frame(raw=d) %>%
             separate(raw, paste0("e", 0:length(d)), sep=" m") %>%
             select(-e0) %>%
             gather(edge, value) %>%
             separate(value, c("pair", "value"), sep=": ") %>%
-            separate(pair, c("pop", "source"), sep="\\]\\[") %>%
+            separate(pair, c("p1", "p2"), sep="\\]\\[") %>%
             separate(value, c("value", "ci"), sep="\\(") %>%
             mutate_each(funs(strip)) %>%
             select(-edge) %>%
             mutate_each(funs(as.numeric))
+
+      return(list(populations=p, data=d))
 }
 
 
