@@ -185,8 +185,11 @@ load_ba_results <- function(path){
 
 #' Run BayesAss.
 #'
-#' @param iter Number of interations (integer)
+#' @param iter Number of iterations (integer)
+#' @param burn Burn-in iterations (integer)
+#' @param interval Sampling interval (integer)
 #' @param seed Random starting seed (integer)
+#' @param other Any other args to BA3.exe
 #' @param exe Path to BayesAss executable file
 #' @param infile Path to input gene data file
 #' @param wd Path to working directory for file export
@@ -194,17 +197,23 @@ load_ba_results <- function(path){
 #'
 #' @export
 bayesass <- function(iter=10000000,
+                     burn=1000000,
+                     interval=1000,
                      seed=10,
                      exe="E:/flow/BA3Windows64/BA3.exe",
                      infile="infile_bayesass.txt",
+                     other=NULL,
                      wd=getwd(),
                      tag=NULL){
       setwd(wd)
       system(paste0(exe,
                     " -u -v -g -t -m0.10 -a0.45 -f0.45",
                     " -i", iter,
+                    " -b", burn,
                     " -s", seed,
-                    " -b1000000 -n1000 -s100 ",
+                    " -n", interval,
+                    " ", other,
+                    " ",
                     infile),
              wait=FALSE, invisible=FALSE)
 
