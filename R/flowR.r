@@ -132,7 +132,7 @@ dm2ba <- function(infile, outfile=NULL){
             x <- p[[i]]
             x <- data.frame(ind = paste0("ind", 1:length(x)),
                             pop = paste0("pop", i),
-                            geno = x) %>%
+                            geno = str_trim(x)) %>%
                   separate(geno, into=loci, sep=" ", remove=T) %>%
                   gather(locus, geno, -ind, -pop)
             x <- separate(x, geno, into=c("allele1", "allele2"), sep=nchar(x$geno[1])/2)
