@@ -244,7 +244,7 @@ load_ba_results <- function(path){
 #' @param exe Path to BayesAss executable file
 #'
 #' @export
-bayesass <- function(infile="infile_bayesass.txt",
+BayesAss <- function(infile="infile_bayesass.txt",
                      outfile="outfile_bayesass.txt",
                      iter=10000000,
                      burn=1000000,
