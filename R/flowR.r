@@ -130,7 +130,9 @@ dm2ba <- function(infile, outfile=NULL){
       # convert to long format
       p <- lapply(1:length(p), function(i){
             x <- p[[i]]
-            x <- data.frame(ind = paste0("ind", 1:length(x)),
+            x <- data.frame(ind = paste0("ind",
+                                         str_pad(i, nchar(length(p)), "right", 0),
+                                         str_pad(1:length(x), 3, "right", 0)),
                             pop = paste0("pop", i),
                             geno = str_trim(x)) %>%
                   separate(geno, into=loci, sep=" ", remove=T) %>%
