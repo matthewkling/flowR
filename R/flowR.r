@@ -100,6 +100,55 @@ mn2ba <- function(infile, outfile=NULL){
 
 
 
+#' Convert divMigrate infiles to BayesAss format.
+#'
+#' This function takes a divMigrate infile and converts it into
+#' a BayesAss infile format. Currently does not support haplotype.
+#'
+#' @param infile Path to genepop text file
+#' @param outfile Path to output file
+#' @export
+dm2ba <- function(infile, outfile=NULL){
+
+      require(stringr)
+      require(dplyr)
+      require(tidyr)
+
+      lines <- readLines(infile)
+      header <- lines[1:2]
+      lines <- lines[3:length(lines)]
+      loci <- unlist(str_split(header[2], ", "))
+
+      # remove individual IDs
+      lines <- substr(lines, regexpr(",", lines)+2, nchar(lines))
+
+      # split into populations
+      i1 <- which(grepl("pop", lines))
+      i2 <- c((i1 - 1)[2:length(i1)], length(lines))
+      p <- lapply(1:length(i1), function(i){ lines[(i1[i]+1):i2[i]] })
+
+      # convert to long format
+      p <- lapply(1:length(p), function(i){
+            x <- p[[i]]
+            x <- data.frame(ind = paste0("ind", 1:length(x)),
+                            pop = paste0("pop", i),
+                            geno = x) %>%
+                  separate(geno, into=loci, sep=" ", remove=T) %>%
+                  gather(locus, geno, -ind, -pop)
+            x <- separate(x, geno, into=c("allele1", "allele2"), sep=nchar(x$geno[1])/2)
+      })
+
+      p <- do.call("rbind", p)
+
+      # export
+      if(is.null(outfile)) outfile <- paste0(dirname(infile), "/infile_BayesAss.txt")
+      write.table(p, outfile, sep=" ", row.names=FALSE, col.names=FALSE, quote=FALSE)
+      return(outfile)
+}
+
+
+
+
 
 #' Load MIGRATE-N outfile.
 #'
@@ -185,41 +234,35 @@ load_ba_results <- function(path){
 
 #' Run BayesAss.
 #'
+#' @param infile Path to input gene data file
+#' @param outfile Output filename including .txt
 #' @param iter Number of iterations (integer)
 #' @param burn Burn-in iterations (integer)
 #' @param interval Sampling interval (integer)
 #' @param seed Random starting seed (integer)
 #' @param other Any other args to BA3.exe
 #' @param exe Path to BayesAss executable file
-#' @param infile Path to input gene data file
-#' @param wd Path to working directory for file export
-#' @param tag Text identifier to append to outfiles
 #'
 #' @export
-bayesass <- function(iter=10000000,
+bayesass <- function(infile="infile_bayesass.txt",
+                     outfile="outfile_bayesass.txt",
+                     iter=10000000,
                      burn=1000000,
                      interval=1000,
                      seed=10,
-                     exe="E:/flow/BA3Windows64/BA3.exe",
-                     infile="infile_bayesass.txt",
                      other=NULL,
-                     wd=getwd(),
-                     tag=NULL){
-      setwd(wd)
+                     exe="E:/flow/BA3Windows64/BA3.exe"){
+
       system(paste0(exe,
-                    " -u -v -g -t -m0.10 -a0.45 -f0.45",
+                    " -u -v", #" -g -t",
+                    #" -m0.10 -a0.45 -f0.45",
                     " -i", iter,
                     " -b", burn,
                     " -s", seed,
                     " -n", interval,
                     " ", other,
-                    " ",
-                    infile),
+                    " -o", outfile,
+                    " ", infile),
              wait=FALSE, invisible=FALSE)
-
-      if(!is.null(tag)){
-            files <- c("BA3out.txt", "BA3trace.txt", "BA3indiv.txt")
-            file.rename(files, gsub(".txt", paste0("_", tag, ".txt"), files))
-      }
 }
 
