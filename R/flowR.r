@@ -222,7 +222,7 @@ load_ba_results <- function(path){
             gather(edge, value) %>%
             separate(value, c("pair", "value"), sep=": ") %>%
             separate(pair, c("p1", "p2"), sep="\\]\\[") %>%
-            separate(value, c("value", "ci"), sep="\\(") %>%
+            separate(value, c("value", "sd"), sep="\\(") %>%
             mutate_each(funs(strip)) %>%
             select(-edge) %>%
             mutate_each(funs(as.numeric))
@@ -263,6 +263,5 @@ BayesAss <- function(infile="infile_bayesass.txt",
                     " ", other,
                     " -o", outfile,
                     " ", infile),
-             wait=FALSE, invisible=FALSE)
+             wait=TRUE, invisible=FALSE)
 }
-
