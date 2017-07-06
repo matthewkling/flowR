@@ -255,7 +255,7 @@ BayesAss <- function(infile="infile_bayesass.txt",
                      other=NULL,
                      exe="E:/flow/BA3Windows64/BA3.exe"){
 
-      system(paste0(exe,
+      y <- system(paste0(exe,
                     " -u -v", #" -g -t",
                     #" -m0.10 -a0.45 -f0.45",
                     " -i", iter,
@@ -265,5 +265,6 @@ BayesAss <- function(infile="infile_bayesass.txt",
                     " ", other,
                     " -o", outfile,
                     " ", infile),
-             wait=TRUE, invisible=FALSE)
+             wait=TRUE, invisible=FALSE, intern=TRUE)
+      return(y)
 }
