@@ -5,8 +5,9 @@
 \title{Run BayesAss.}
 \usage{
 BayesAss(infile = "infile_bayesass.txt", outfile = "outfile_bayesass.txt",
-  iter = 1e+07, burn = 1e+06, interval = 1000, seed = 10,
-  other = NULL, exe = "E:/flow/BA3Windows64/BA3.exe")
+  iter = 1e+07, burn = 1e+06, interval = 1000, deltaM = 0.1,
+  deltaA = 0.1, deltaF = 0.1, seed = 10, other = NULL,
+  exe = "E:/flow/BA3Windows64/BA3.exe")
 }
 \arguments{
 \item{infile}{Path to input gene data file}

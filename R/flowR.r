@@ -251,6 +251,9 @@ BayesAss <- function(infile="infile_bayesass.txt",
                      iter=10000000,
                      burn=1000000,
                      interval=1000,
+                     deltaM=0.10,
+                     deltaA=0.10,
+                     deltaF=0.10,
                      seed=10,
                      other=NULL,
                      exe="E:/flow/BA3Windows64/BA3.exe"){
@@ -262,9 +265,67 @@ BayesAss <- function(infile="infile_bayesass.txt",
                     " -b", burn,
                     " -s", seed,
                     " -n", interval,
+                    " -a", deltaA,
+                    " -f", deltaF,
+                    " -m", deltaM,
                     " ", other,
                     " -o", outfile,
                     " ", infile),
              wait=TRUE, invisible=FALSE, intern=TRUE)
       return(y)
 }
+
+
+
+#' Get acceptance rates from BayesAss output.
+#'
+#' @param x An object returned by BayesAss
+#'
+#' @export
+acceptance <- function(x){
+      require(dplyr)
+      require(stringr)
+      x <- x[grepl("accepted", x)] %>%
+            str_split("accepted") %>%
+            unlist()
+      x <- x[substr(x, 1, 1)==":"]
+      x <- substr(x, 4, nchar(x))
+      i <- gregexpr(")", x) %>% sapply(function(x) x[1])
+      x <- substr(x, 1, i-1) %>%
+            str_split(", ") %>%
+            lapply(as.numeric) %>%
+            do.call("cbind", .) %>%
+            t()
+      colnames(x) <- c("migrate", "indiv", "allele", "inbreed", "missing")
+      return(x)
+}
+
+
+
+
+#' Calculate Bayesian deviance from a BayesAss trace file.
+#'
+#' Code modified from supplementary files for: Meirmans, P. G. Nonconvergence in
+#' Bayesian estimation of migration rates. 726–733 (2014).
+#' doi:10.1111/1755-0998.12216
+#'
+#' @param file Path to BA3trace.txt
+#' @param burn Number of burn iterations used
+#' @param interval Sampling intrval used
+#'
+#' @return Deviance value
+#'
+#' @export
+BA_deviance <- function(file, burn, interval){
+
+      # Read the data from the trace file
+      trace=read.table(file, header=TRUE)
+
+      # Calculate the deviance
+      range = (trace$State > burn & trace$State %% interval == 0)
+      D = -2*mean(trace$LogProb[range])
+
+}
+
+
+
